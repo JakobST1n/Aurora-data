@@ -4,7 +4,7 @@
 	"name": "Aurora Data",
 	"short_name": "aurora data",
 	"display": "standalone",
-	"start_url": "/Aurora-data",
+	"start_url": "/Aurora-data/",
     "orientation": "portrait",
 	"icons": [
 		{
