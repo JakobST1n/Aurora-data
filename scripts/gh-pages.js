@@ -1,7 +1,7 @@
 var ghpages = require('gh-pages');
 
 ghpages.publish(
-    '__sapper__/export/aurora-data',
+    '__sapper__/export/Aurora-data',
     {
         branch: 'gh-pages',
         repo: 'https://github.com/JakobST1n/Aurora-data.git',

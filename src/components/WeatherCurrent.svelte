@@ -107,7 +107,7 @@
             linear-gradient(
                 rgba(0, 0, 0, 0.5),
                 rgba(0, 0, 0, 0.5)
-            ), url(/aurora.jpg);
+            ), url(/Aurora-data/aurora.jpg);
         background-size: cover;
         background-repeat: no-repeat;
         background-position: center;
