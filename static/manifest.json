@@ -2,7 +2,7 @@
 	"background_color": "#464a47",
 	"theme_color": "#5ac775",
 	"name": "Aurora Data",
-	"short_name": "aurora data",
+	"short_name": "Aurora Data",
 	"display": "fullscreen",
 	"start_url": "/Aurora-data/",
     "orientation": "portrait",

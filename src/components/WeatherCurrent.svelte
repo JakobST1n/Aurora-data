@@ -10,7 +10,7 @@
 	let locationSupported;
 	let dataLoading = true;
 
-    let location = "The earth";
+    let location = "-";
     let date = "-";
     let kp_now = "-";
     let kp_min = "-";
@@ -23,6 +23,13 @@
         let yr_data = await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${latitude}&lon=${longitude}`).then(res => res.json());
         clouds = yr_data["properties"]["timeseries"][0]["data"]["instant"]["details"]["cloud_area_fraction"];
         temp =  yr_data["properties"]["timeseries"][0]["data"]["instant"]["details"]["air_temperature"];
+    }
+
+    async function getLocation(longitude, latitude) {
+        console.log(`https://geocode.xyz/${longitude},${latitude}?geoit=json`);
+        let locDat = await fetch(`https://geocode.xyz/${latitude},${longitude}?geoit=json`).then(r => r.json());
+        console.log(locDat);
+        location = locDat["city"];
     }
 
     async function getUSNOAAData() {
@@ -71,6 +78,7 @@
 		longitude = position.coords.longitude
 		latitude = position.coords.latitude
 		getMETNorData(longitude, latitude)
+        getLocation(longitude, latitude);
 	}
 
 	function locationError(err) {
