@@ -6,9 +6,9 @@
 
 <style>
     .homescreen {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        display: grid;
+        grid-template-rows: 40vh auto;
+        grid-row-gap: 0;
         height: 100%;
         --bg-opacity: 1;
         background-color: #1a202c;

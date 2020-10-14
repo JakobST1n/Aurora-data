@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+
     const monthNames = ["January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"
     ];
@@ -8,9 +9,6 @@
 	let latitude;
 	let locationSupported;
 	let dataLoading = true;
-	let defaultLocation = false;
-	let weather;
-	let days = Array();
 
     let location = "The earth";
     let date = "-";
@@ -19,14 +17,19 @@
     let kp_max = "-";
     let bz = "-";
     let clouds = "-";
+    let temp = "-";
 
-	async function getWeather(longitude, latitude) {
+    async function getMETNorData(longitude, latitude) {
         let yr_data = await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${latitude}&lon=${longitude}`).then(res => res.json());
         clouds = yr_data["properties"]["timeseries"][0]["data"]["instant"]["details"]["cloud_area_fraction"];
+        temp =  yr_data["properties"]["timeseries"][0]["data"]["instant"]["details"]["air_temperature"];
+    }
+
+    async function getUSNOAAData() {
         bz = (await fetch("https://services.swpc.noaa.gov/products/summary/solar-wind-mag-field.json").then(res => res.json()))["Bz"];
-        //console.log (await fetch(`http://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&sensor=true`).then(res => res.json()));
-        let kp_data = await fetch('https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json').then(res => res.json());
+        let kp_data = (await fetch('https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json').then(res => res.json()));
         kp_data.shift();
+
         let cDate = new Date();
         let closestDate = new Date(0,0,0);
         let minkp = 1000; // Just a larger number than any plausable value
@@ -48,17 +51,12 @@
         kp_min = minkp.toString();
         kp_max = maxkp.toString();
 
-        date = cDate.getDay() + ". " + monthNames[cDate.getMonth()] + " " + cDate.getHours() + ":" + cDate.getMinutes();
-	}
-	function getDays(daily) {
-		var data = daily.data.slice(0,5)
-		data.forEach(element => {
-			var a = new Date(element.time*1000)
-			var dayStrings = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-			days.push(dayStrings[a.getDay()])
-		});
-	}
-	function getLocation() {
+        date = closestDate.getDay() + ". " + monthNames[closestDate.getMonth()] + " " + closestDate.getHours() + ":" + closestDate.getMinutes();
+    }
+
+	function fetchData() {
+        getUSNOAAData();
+
 		if (navigator.geolocation) {
 			dataLoading = true
 			locationSupported = true
@@ -72,7 +70,7 @@
 	function setLocation(position) {
 		longitude = position.coords.longitude
 		latitude = position.coords.latitude
-		getWeather(longitude, latitude)
+		getMETNorData(longitude, latitude)
 	}
 
 	function locationError(err) {
@@ -87,16 +85,15 @@
 	function toggleLoading() {
 		dataLoading = !dataLoading
 	}
-	function toggleDefault() {
-		defaultLocation = !defaultLocation
-	}
-    onMount(getLocation);
+
+    onMount(fetchData);
 </script>
 
 <style>
 
     .weatherCurrent-wrapper {
-        height: 100%;
+        height: calc(100% + 2rem);
+        align-self: stretch;
         font-family: Roboto, sans-serif;
         font-size: 1rem;
         letter-spacing: 0.05em;
@@ -162,6 +159,7 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
         grid-gap: 1rem;
         gap: 1rem;
+        padding-bottom: 0.5rem;
         text-shadow: 1px 1px 2px rgba(0,0,0,.75);
     }
 
@@ -197,8 +195,8 @@
                 <p>{bz}</p>
             </div>
             <div>
-                <p>Probability</p>
-                <p>10%</p>
+                <p>Temp</p>
+                <p>{temp}°C</p>
             </div>
             <div>
                 <p>Clouds</p>

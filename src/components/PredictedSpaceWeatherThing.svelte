@@ -11,6 +11,7 @@
     let time = dateTime[1].substring(0,5);
     let temp = prediction["temp"];
     let clouds = prediction["clouds"];
+    let hasNOMETData = prediction["hasNOMETData"];
 </script>
 
 <style>
@@ -56,9 +57,11 @@
     </div>
     <div class="data">
         <h2>{kp}</h2>
+        {#if hasNOMETData}
         <div>
             <p><i class="fas fa-thermometer-half"></i> {temp}°C</p>
             <p><i class="fas fa-cloud"></i> {clouds}%</p>
         </div>
+        {/if}
     </div>
 </div>
