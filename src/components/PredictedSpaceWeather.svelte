@@ -70,6 +70,7 @@
     }
 
     function locationError(err) {
+        locationSupported = false
         noLocation()
     }
 
