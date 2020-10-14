@@ -3,7 +3,7 @@
 	"theme_color": "#5ac775",
 	"name": "Aurora Data",
 	"short_name": "aurora data",
-	"display": "standalone",
+	"display": "fullscreen",
 	"start_url": "/Aurora-data/",
     "orientation": "portrait",
 	"icons": [
