@@ -159,7 +159,7 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
         grid-gap: 1rem;
         gap: 1rem;
-        padding-bottom: 0.5rem;
+        padding-bottom: 1.5rem;
         text-shadow: 1px 1px 2px rgba(0,0,0,.75);
     }
 

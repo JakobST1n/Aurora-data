@@ -100,6 +100,7 @@
         height: 100%;
         overflow: hidden;
         align-self: stretch;
+        box-shadow: 0px -6px 7px 0px black;
     }
 
     @media (min-width: 640px), (min-height: 720px) {
