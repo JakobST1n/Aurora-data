@@ -4,12 +4,13 @@ ghpages.publish(
     '__sapper__/export/Aurora-data',
     {
         branch: 'gh-pages',
-        repo: 'https://github.com/JakobST1n/Aurora-data.git',
+        repo: 'git@github.com:JakobST1n/Aurora-data.git',
         user: {
             name: 'jakobst1n'
         }
     },
-    () => {
+    (e) => {
+        console.log(e);
         console.log('Deploy Complete!')
     },
     console.log
