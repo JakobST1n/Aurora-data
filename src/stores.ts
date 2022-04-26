@@ -104,7 +104,6 @@ async function updateEarthWeather(location=null) {
         "now": current_weather,
         "available": true
     }));
-    console.log(yr_data);
 
     setUpdated(earth_weather, false);
 }
@@ -174,7 +173,6 @@ async function getSpaceWeather() {
 
     ret.now.kp_min = minkp.toString();
     ret.now.kp_max = maxkp.toString();
-    console.log(ret.usnoaa_data_raw);
 
     return ret;
 }
