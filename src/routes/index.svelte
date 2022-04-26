@@ -1,6 +1,9 @@
 <script lang="ts">
 	import WeatherCurrent from '../components/WeatherCurrent.svelte';
     import PredictedSpaceWeather from '../components/PredictedSpaceWeather.svelte';
+
+    //import { theme, fetchingData, fetchDataError, weatherData } from "../stores.ts";
+    //weatherData.subscribe(console.log);
 </script>
 
 

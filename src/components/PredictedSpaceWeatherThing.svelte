@@ -5,10 +5,17 @@
       "July", "August", "September", "October", "November", "December"
     ];
 
+    function zpad(value, n=2) {
+        let r = value;
+        for (let i = 0; i < n - value.length; i++) {
+            r = "0" + r;
+        }
+        return r;
+    }
+
     let kp = prediction["kp"];
-    let dateTime = prediction["time"].split(" ");
-    let date = Number(dateTime[0].split("-")[2]) + ". " + monthNames[Number(dateTime[0].split("-")[1])];
-    let time = dateTime[1].substring(0,5);
+    let date = prediction["time"].getDate()  + ". " + monthNames[prediction["time"].getMonth()];
+    let time = zpad(prediction["time"].getHours().toString()) + ":" + zpad(prediction["time"].getMinutes().toString());
     let temp = prediction["temp"];
     let clouds = prediction["clouds"];
     let hasNOMETData = prediction["hasNOMETData"];

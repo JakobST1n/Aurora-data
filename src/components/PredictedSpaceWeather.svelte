@@ -1,90 +1,59 @@
 <script lang="ts">
     import PredictedSpaceWeatherThing from './PredictedSpaceWeatherThing.svelte';
+
     import { onMount } from 'svelte';
+    import { earth_weather, space_weather } from '../stores';
 
     const monthNames = ["January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"
     ];
 
-    let longitude;
-    let latitude;
-    let locationSupported = false;
-    let dataLoading = true;
-
     let predictions;
 
-    async function getWeather(longitude, latitude) {
-        let yr_data;
-        if (locationSupported) {
-            yr_data = await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${latitude}&lon=${longitude}`).then(res => res.json());
-        }
-        let kp_data = await fetch("https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json").then(res => res.json());
-        kp_data.shift();
+    space_weather.subscribe(assembleWeatherData);
+    earth_weather.subscribe(assembleWeatherData);
 
-        let updatedPredictions = [];
-        kp_data.forEach((pred, i) => {
-            if (pred[2] != "observed") {
+    async function assembleWeatherData() {
+        if ($space_weather.updating || $earth_weather.updating) {
+            predictions = null;
+            return;
+        }
+
+        // First just reorganize the space_weather data
+        predictions = $space_weather.usnoaa_data_raw.noaa_planetary_k_index_forecast.map(
+            pred => ({
+                "time": pred.time,
+                "kp": pred.kp,
+                "temp": null,
+                "clouds": null,
+                "hasNOMETData": $earth_weather.available
+            })
+        );
+
+        // Add earth weather data if it is available
+        if ($earth_weather.available) {
+            predictions.forEach((pred, i) => {
+                let closestDate = new Date(0,0,0);
                 let temp;
                 let clouds;
-                let cDate = new Date(pred[0]);
-                let closestDate = new Date(0,0,0);
 
-                if (locationSupported) {
-                    yr_data["properties"]["timeseries"].forEach((pred, i) => {
-                        let predDate = new Date(pred["time"]);
-                        if (Math.abs(predDate.getTime() - cDate.getTime()) < Math.abs(closestDate.getTime() - cDate.getTime())) {
-                            closestDate = predDate;
-                            temp = (pred["data"]["instant"]["details"]["air_temperature"]);
-                            clouds = pred["data"]["instant"]["details"]["cloud_area_fraction"];
-                        }
-                    });
-                }
-
-                updatedPredictions.push({
-                    "time": pred[0],
-                    "kp": pred[1],
-                    "temp": temp,
-                    "clouds": clouds,
-                    "hasNOMETData": locationSupported
+                $earth_weather.yr_data_raw.properties.timeseries.forEach((earth_pred, i) => {
+                    let predDate = new Date(earth_pred.time);
+                    if (Math.abs(predDate.getTime() - pred.time.getTime()) < Math.abs(closestDate.getTime() - pred.time.getTime())) {
+                        closestDate = predDate;
+                        temp = (earth_pred["data"]["instant"]["details"]["air_temperature"]);
+                        clouds = earth_pred["data"]["instant"]["details"]["cloud_area_fraction"];
+                    }
                 });
-            }
-        });
-        predictions = updatedPredictions;
-    }
 
-    function getLocation() {
-        if (navigator.geolocation) {
-            dataLoading = true
-            locationSupported = true
-            navigator.geolocation.getCurrentPosition(setLocation, locationError)
-        } else {
-            locationSupported = false
-            noLocation()
+                predictions[i] = {
+                    ...predictions[i], "temp": temp, "clouds": clouds
+                }
+            });
         }
+
     }
 
-    function setLocation(position) {
-        longitude = position.coords.longitude
-        latitude = position.coords.latitude
-        getWeather(longitude, latitude)
-    }
-
-    function locationError(err) {
-        locationSupported = false
-        noLocation()
-    }
-
-    function noLocation() {
-        longitude = 28.283333
-        latitude = -15.416667
-        getWeather(0, 0);
-        toggleLoading()
-    }
-    function toggleLoading() {
-        dataLoading = !dataLoading
-    }
-
-    onMount(getLocation);
 </script>
 
 <style>
