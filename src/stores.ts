@@ -134,7 +134,8 @@ async function getSpaceWeather() {
         },
         "usnoaa_data_raw": {
             "solar_wind_mag_field": false,
-            "noaa_planetary_k_index_forecast": false
+            "noaa_planetary_k_index_forecast": false,
+            "geospace_pred_est_kp_1_hour": false
         }
     };
 
@@ -144,8 +145,11 @@ async function getSpaceWeather() {
     ret.now.bz = ret.usnoaa_data_raw.solar_wind_mag_field["Bz"];
     ret.now.bt = ret.usnoaa_data_raw.solar_wind_mag_field["Bt"];
 
+    res = await fetch("https://services.swpc.noaa.gov/json/geospace/geospace_pred_est_kp_1_hour.json");
+    ret.usnoaa_data_raw.geospace_pred_est_kp_1_hour = (await res.json()).map(x => ({...x, "model_prediction_time": new Date(x.model_prediction_time)}));
+
     res = await fetch("https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json")
-    ret.usnoaa_data_raw.noaa_planetary_k_index_forecast = await res.json()
+    ret.usnoaa_data_raw.noaa_planetary_k_index_forecast = await res.json();
     ret.usnoaa_data_raw.noaa_planetary_k_index_forecast.shift();
 
     let cDate = new Date();

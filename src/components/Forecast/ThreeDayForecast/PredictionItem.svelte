@@ -1,5 +1,5 @@
 <script>
-    import Chip from "./Basic/Chip.svelte";
+    import Chip from "../../Basic/Chip.svelte";
 
     export let prediction;
 

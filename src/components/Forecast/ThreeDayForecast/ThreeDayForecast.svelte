@@ -1,8 +1,8 @@
 <script lang="ts">
-    import PredictedSpaceWeatherThing from './PredictedSpaceWeatherThing.svelte';
+    import PredictionItem from './PredictionItem.svelte';
 
     import { onMount } from 'svelte';
-    import { earth_weather, space_weather } from '../stores';
+    import { earth_weather, space_weather } from '../../../stores';
 
     const monthNames = ["January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"
@@ -59,45 +59,6 @@
 </script>
 
 <style>
-    .predicted-weather {
-        border-top-left-radius: 2rem;
-        border-top-right-radius: 2rem;
-        --bg-opacity: 1;
-        background-color: #f7fafc;
-        background-color: rgba(247, 250, 252, var(--bg-opacity));
-        padding: 1.5rem;
-        --text-opacity: 1;
-        color: #1a202c;
-        color: rgba(26, 32, 44, var(--text-opacity));
-        height: 100%;
-        overflow: hidden;
-        align-self: stretch;
-        box-shadow: 0px -6px 7px 0px black;
-    }
-
-    @media (min-width: 640px), (min-height: 720px) {
-        .predicted-weather {
-            padding: 2rem;
-            padding-top: 1.5rem;
-        }
-    }
-
-    @media (min-width: 640px) {
-        .predicted-weather {
-            border-bottom-right-radius: 1rem;
-            border-bottom-left-radius: 1rem;
-        }
-    }
-
-    .predicted-weather h2 {
-        text-transform: uppercase;
-        font-size: 0.875rem;
-        letter-spacing: 0.1em;
-        font-weight: 700;
-        margin-top: 0.25rem;
-        margin-bottom: 0.5rem;
-    }
-
     .prediction-table {
         height: 100%;
         overflow-y: scroll;
@@ -107,37 +68,10 @@
     .prediction-table::-webkit-scrollbar {
         display: none;
     }
-
-    .no-data {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        color: grey;
-
-    }
-
-    .no-data {
-        margin-top: 1rem;
-    }
 </style>
 
-<div class="predicted-weather">
-    {#if predictions}
-    	<div className="flex flex-row justify-between items-top">
-    		<h2>Predicted</h2>
-    	</div>
-        <div class="prediction-table">
-            {#each predictions as prediction, i}
-                <PredictedSpaceWeatherThing {prediction}/>
-            {/each}
-        </div>
-    {:else}
-        <div class="no-data">
-            <i class="fas fa-7x fa-exclamation-triangle"></i>
-            <p>No prediction data</p>
-        </div>
-    {/if}
+<div class="prediction-table">
+    {#each predictions as prediction, i}
+        <PredictionItem {prediction}/>
+    {/each}
 </div>
