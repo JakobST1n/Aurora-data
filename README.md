@@ -1,8 +1,9 @@
 # [Aurora-data](https://jakobst1n.github.io/Aurora-data/)
 
 ![Image of current design](https://github.com/JakobST1n/Aurora-data/blob/master/screenshot.png)
-This is very much a work in progress, the idea is to collect all the information you would want when
-hunting for northern lights. In a Progressive web app, which polls all API's directly from your device.
+
+Progressive web app, which shows useful information when hunting northern lights. It gets it data by directly 
+fetching it from MET Norway and SWPC NOAA. There is no middle-man, which is mostly why I made this app.
 
 ## Credits
 - All data related to space weather is from [USA National Space Weather Prediction Center](https://www.swpc.noaa.gov).
