@@ -76,7 +76,7 @@
 
     .current-details {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         grid-gap: 1rem;
         gap: 1rem;
         padding-bottom: 1.5rem;
@@ -93,15 +93,14 @@
 <div class="weatherCurrent-wrapper">
     <div class="weatherCurrent-data">
         <div class="weatherCurrent-data-location">
-            {#if !$navigator_location.updating && $navigator_location.available}
+            {#if !$navigator_location.updating && $navigator_location.available && !$earth_weather.updating && !$space_weather.updating}
                 <i class="symbol fas fa-map-marker-alt"></i>
                 <h1>{$navigator_location.city}</h1>
             {/if}
         </div>
 
         <div class="weatherCurrent-data-date">
-        {#if $earth_weather.updating || $space_weather.updating}
-        {:else}
+        {#if !$earth_weather.updating && !$space_weather.updating}
             {#if Math.abs($earth_weather.updated - $space_weather.updated) > 60*10*1000}
                 <p>There is more than 10 minutes difference between data updates</p>
             {:else}
@@ -127,6 +126,10 @@
                 <div>
                     <p>BZ</p>
                     <p>{$space_weather.now.bz}</p>
+                </div>
+                <div>
+                    <p>BT</p>
+                    <p>{$space_weather.now.bt}</p>
                 </div>
                 {#if $earth_weather.available}
                 <div>

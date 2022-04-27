@@ -20,10 +20,12 @@
         }
 
         // First just reorganize the space_weather data
-        predictions = $space_weather.usnoaa_data_raw.noaa_planetary_k_index_forecast.map(
+        let forecast = $space_weather.usnoaa_data_raw.noaa_planetary_k_index_forecast.filter(x => x.observed !== "observed");
+        predictions = forecast.map(
             pred => ({
                 "time": pred.time,
                 "kp": pred.kp,
+                "observed": pred.observed,
                 "temp": null,
                 "clouds": null,
                 "hasNOMETData": $earth_weather.available

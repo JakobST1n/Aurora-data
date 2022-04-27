@@ -127,6 +127,7 @@ async function getSpaceWeather() {
     let ret = {
         "now": {
             "bz": "-",
+            "bt": "-",
             "kp": "-",
             "kp_min": "-",
             "kp_max": "-"
@@ -141,6 +142,7 @@ async function getSpaceWeather() {
     ret.usnoaa_data_raw.solar_wind_mag_field = await res.json();
     ret.usnoaa_data_raw.solar_wind_mag_field.TimeStamp = new Date(ret.usnoaa_data_raw.solar_wind_mag_field.TimeStamp + " UTC");
     ret.now.bz = ret.usnoaa_data_raw.solar_wind_mag_field["Bz"];
+    ret.now.bt = ret.usnoaa_data_raw.solar_wind_mag_field["Bt"];
 
     res = await fetch("https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json")
     ret.usnoaa_data_raw.noaa_planetary_k_index_forecast = await res.json()
@@ -174,6 +176,7 @@ async function getSpaceWeather() {
     ret.now.kp_min = minkp.toString();
     ret.now.kp_max = maxkp.toString();
 
+    console.log(ret);
     return ret;
 }
 

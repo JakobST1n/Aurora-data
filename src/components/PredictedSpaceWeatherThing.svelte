@@ -1,4 +1,6 @@
 <script>
+    import Chip from "./Basic/Chip.svelte";
+
     export let prediction;
 
     const monthNames = ["January", "February", "March", "April", "May", "June",
@@ -24,17 +26,25 @@
 <style>
     .prediction-details {
       display: flex;
-      justify-content: space-between;
       border-bottom-width: 1px;
       padding-top: 0.5rem;
       padding-bottom: 0.5rem;
       font-size: 0.75rem;
       letter-spacing: 0.05em;
+      align-items: center;
     }
 
     .prediction-details:last-of-type {
       border-width: 0;
       padding-bottom: 0;
+    }
+
+    .prediction-details > * {
+      margin: 5px;
+    }
+
+    .prediction-details div:last-child {
+      margin-left: auto;
     }
 
     .prediction-details h3 {
@@ -54,6 +64,13 @@
         margin-right: 1rem;
         font-size: 1.5rem;
     }
+    .prediction-details .data p {
+        min-width: 3.3rem;
+    }
+    .prediction-details .data i {
+        width: 1rem;
+        text-align: center;
+    }
 
 </style>
 
@@ -62,12 +79,17 @@
         <h3>{time}</h3>
         <p>{date}</p>
     </div>
+    {#if prediction.observed != "predicted"}
+        <div>
+            <Chip>{prediction.observed}</Chip>
+        </div>
+    {/if}
     <div class="data">
         <h2>{kp}</h2>
         {#if hasNOMETData}
         <div>
-            <p><i class="fas fa-thermometer-half"></i> {temp}°C</p>
-            <p><i class="fas fa-cloud"></i> {clouds}%</p>
+            <p><i class="fas fa-thermometer-half"></i> {Math.round(temp)}°C</p>
+            <p><i class="fas fa-cloud"></i> {Math.round(clouds)}%</p>
         </div>
         {/if}
     </div>
