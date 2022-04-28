@@ -1,5 +1,6 @@
 <script>
     import Chip from "../../Basic/Chip.svelte";
+    import Bar from "../../Basic/Bar.svelte";
 
     export let prediction;
 
@@ -71,6 +72,12 @@
         width: 1rem;
         text-align: center;
     }
+    .KP {
+        flex-grow: 1;
+        margin-right: 1rem;
+        font-size: 1.7rem;
+        height: 2.2rem;
+    }
 
 </style>
 
@@ -84,8 +91,10 @@
             <Chip>{prediction.observed}</Chip>
         </div>
     {/if}
+    <div class="KP">
+        <Bar percentage={kp/9} value={kp} />
+    </div>
     <div class="data">
-        <h2>{kp}</h2>
         {#if hasNOMETData}
         <div>
             <p><i class="fas fa-thermometer-half"></i> {Math.round(temp)}°C</p>

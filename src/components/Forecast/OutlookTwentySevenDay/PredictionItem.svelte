@@ -1,5 +1,6 @@
 <script>
     import Chip from "../../Basic/Chip.svelte";
+    import Bar from "../../Basic/Bar.svelte";
 
     export let prediction;
 
@@ -20,7 +21,7 @@
     let time = zpad(prediction["time"].getHours().toString()) + ":" + zpad(prediction["time"].getMinutes().toString());
     let temp = prediction["temp"];
     let clouds = prediction["clouds"];
-    let hasNOMETData = prediction["hasNOMETData"];
+    let hasNOMETData = false;
 </script>
 
 <style>
@@ -71,6 +72,12 @@
         width: 1rem;
         text-align: center;
     }
+    .KP {
+        flex-grow: 1;
+        margin-right: 1rem;
+        font-size: 1.7rem;
+        height: 2.2rem;
+    }
 
 </style>
 
@@ -79,8 +86,10 @@
         <h3>{time}</h3>
         <p>{date}</p>
     </div>
+    <div class="KP">
+        <Bar percentage={kp/9} value={kp} />
+    </div>
     <div class="data">
-        <h2>{kp}</h2>
         {#if hasNOMETData}
         <div>
             <p><i class="fas fa-thermometer-half"></i> {Math.round(temp)}°C</p>
