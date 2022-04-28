@@ -2,6 +2,7 @@ body {
     --surface: rgb(247, 250, 252);
     --surface: #f7fafc;
     --on-surface: #1a202c;
+    --elevation-1-shadow: 0px -6px 7px 0px black;
 
     --divider: #e2e8f0;
     --gradient-1: linear-gradient(90deg, #84fab0, #8fd3f4 51%, #84fab0) 100% / 200%;
@@ -14,6 +15,7 @@ body {
 body.dark {
     --surface: #161616;
     --on-surface: #a5a5a5;
+    --elevation-1-shadow: none;
 
     --divider: #363636;
     --gradient-1: linear-gradient(90deg, #0c5f2b, #0a2531 51%, #1e6439) 100% / 200%;
