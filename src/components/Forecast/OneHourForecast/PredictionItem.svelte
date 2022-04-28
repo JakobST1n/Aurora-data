@@ -28,6 +28,7 @@
     .prediction-details {
       display: flex;
       border-bottom-width: 1px;
+      border-color: var(--divider, #e2e8f0);
       padding-top: 0.5rem;
       padding-bottom: 0.5rem;
       font-size: 0.75rem;

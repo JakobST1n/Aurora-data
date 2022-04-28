@@ -3,7 +3,7 @@
         padding: 3px 5px;
         box-sizing: border-box;
         border-radius: 20px;
-        background: linear-gradient(90deg, #84fab0, #8fd3f4 51%, #84fab0) 100% / 200%;
+        background: var(--gradient-1, green);
         color: white;
     }
 </style>

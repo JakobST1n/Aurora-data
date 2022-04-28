@@ -13,13 +13,9 @@
     .drawer {
         border-top-left-radius: 2rem;
         border-top-right-radius: 2rem;
-        --bg-opacity: 1;
-        background-color: #f7fafc;
-        background-color: rgba(247, 250, 252, var(--bg-opacity));
+        background-color: var(--surface, #f7fafc);
+        color: var(--on-surface, #1a202c);
         padding: 1.5rem;
-        --text-opacity: 1;
-        color: #1a202c;
-        color: rgba(26, 32, 44, var(--text-opacity));
         height: 100%;
         overflow: hidden;
         align-self: stretch;

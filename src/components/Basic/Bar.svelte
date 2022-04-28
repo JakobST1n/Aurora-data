@@ -31,11 +31,7 @@
         width: 100%;
         right: calc(100% - var(--progress));
         overflow: hidden;
-        background: linear-gradient(90deg, 
-                                    rgba(255, 42,228,1) 0%,
-                                    rgba(164,255,177,1) 60%, 
-                                    rgba(214,255,241,1) 85%,
-                                    rgba(247,250,252,1) 100%); 
+        background: var(--gradient-2, green); 
         border-radius: 15px;
     }
 
