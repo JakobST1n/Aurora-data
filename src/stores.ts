@@ -1,6 +1,21 @@
-import { writable, readable } from 'svelte/store';
+import { writable, readable, get } from 'svelte/store';
 
+// Choose dark or light mode.
 export const theme = writable('light');
+function check_system_theme() {
+    if (typeof window === "undefined") { return; }
+    let system_theme = window.matchMedia("(prefers-color-scheme:dark)").matches ? "dark" : "light";
+    if (system_theme != get(theme)) { theme.set(system_theme); }
+}
+setInterval(check_system_theme, 1000);
+theme.subscribe(value => {
+    if (typeof window === "undefined") { return; }
+    if (value == "dark") {
+        window.document.body.classList.add("dark");
+    } else {
+        window.document.body.classList.remove("dark");
+    }
+});
 
 /*
  * the different data sources are
