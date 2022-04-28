@@ -20,11 +20,11 @@
         }
 
         // First just reorganize the space_weather data
-        let forecast = $space_weather.usnoaa_data_raw.geospace_pred_est_kp_1_hour.filter(x => x.model_prediction_time >= new Date());
+        let forecast = $space_weather.usnoaa_data_raw.outlook_27_day.filter(x => x.time >= new Date());
         predictions = forecast.map(
             pred => ({
-                "time": pred.model_prediction_time,
-                "kp": Math.round(pred.k),
+                "time": pred.time,
+                "kp": pred.kindex,
                 "temp": null,
                 "clouds": null,
                 "hasNOMETData": $earth_weather.available
@@ -42,7 +42,7 @@
                 $earth_weather.yr_data_raw.properties.timeseries.forEach((earth_pred, i) => {
                     let predDate = new Date(earth_pred.time);
                     if (Math.abs(predDate.getTime() - pred.time.getTime()) < Math.abs(closestDate.getTime() - pred.time.getTime())) {
-                        if ((Math.abs(predDate.getTime() - pred.time.getTime())) > (3600 * 5 * 1000)) {
+                        if ((Math.abs(predDate.getTime() - pred.time.getTime())) > (86400 * 1000)) {
                             weatherData = false;
                             return;
                         }

@@ -1,6 +1,7 @@
 <script lang="ts">
     import OneHourForecast from "./OneHourForecast/OneHourForecast.svelte";
     import ThreeDayForecast from "./ThreeDayForecast/ThreeDayForecast.svelte";
+    import OutlookTwentySevenDay from "./OutlookTwentySevenDay/OutlookTwentySevenDay.svelte";
 
     import { earth_weather, space_weather } from "../../stores.ts";
 
@@ -96,6 +97,7 @@
             <div class="version-picker">
                 <div class:selected={selected_version == OneHourForecast} on:click={() => selected_version = OneHourForecast}>hour</div>
                 <div class:selected={selected_version == ThreeDayForecast} on:click={() => selected_version = ThreeDayForecast}>3 day</div>
+                <div class:selected={selected_version == OutlookTwentySevenDay} on:click={() => selected_version = OutlookTwentySevenDay}>Long time</div>
             </div>
     	</div>
         <svelte:component this={selected_version} />

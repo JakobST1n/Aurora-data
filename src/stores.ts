@@ -135,10 +135,12 @@ async function getSpaceWeather() {
         "usnoaa_data_raw": {
             "solar_wind_mag_field": false,
             "noaa_planetary_k_index_forecast": false,
-            "geospace_pred_est_kp_1_hour": false
+            "geospace_pred_est_kp_1_hour": false,
+            "outlook_27_day": false
         }
     };
 
+    let tmp;
     let res = await fetch("https://services.swpc.noaa.gov/products/summary/solar-wind-mag-field.json");
     ret.usnoaa_data_raw.solar_wind_mag_field = await res.json();
     ret.usnoaa_data_raw.solar_wind_mag_field.TimeStamp = new Date(ret.usnoaa_data_raw.solar_wind_mag_field.TimeStamp + " UTC");
@@ -146,7 +148,19 @@ async function getSpaceWeather() {
     ret.now.bt = ret.usnoaa_data_raw.solar_wind_mag_field["Bt"];
 
     res = await fetch("https://services.swpc.noaa.gov/json/geospace/geospace_pred_est_kp_1_hour.json");
-    ret.usnoaa_data_raw.geospace_pred_est_kp_1_hour = (await res.json()).map(x => ({...x, "model_prediction_time": new Date(x.model_prediction_time)}));
+    tmp = await res.json();
+    tmp = tmp.map(x => ({
+        ...x, "model_prediction_time": new Date(x.model_prediction_time)
+    }));
+    ret.usnoaa_data_raw.geospace_pred_est_kp_1_hour = tmp
+
+    res = await fetch("https://services.swpc.noaa.gov/text/27-day-outlook.txt");
+    tmp = await res.text();
+    tmp = [...tmp.matchAll(
+        /^(?<time>\d{4}\s.{3}\s\d{2})\s+(?<flux107>\d+)\s+(?<aindex>\d+)\s+(?<kindex>\d+)$/gm
+    )];
+    tmp = tmp.map(x => ({...x.groups, "time": new Date(x.groups.time + " UTC")}));
+    ret.usnoaa_data_raw.outlook_27_day = tmp;
 
     res = await fetch("https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json")
     ret.usnoaa_data_raw.noaa_planetary_k_index_forecast = await res.json();
