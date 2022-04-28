@@ -1,0 +1,24 @@
+body {
+    --surface: rgb(247, 250, 252);
+    --surface: #f7fafc;
+    --on-surface: #1a202c;
+
+    --divider: #e2e8f0;
+    --gradient-1: linear-gradient(90deg, #84fab0, #8fd3f4 51%, #84fab0) 100% / 200%;
+    --gradient-2: linear-gradient(90deg, rgba(255, 42,228,1) 0%,
+                                         rgba(164,255,177,1) 60%, 
+                                         rgba(214,255,241,1) 85%,
+                                         var(--surface) 100%); 
+}
+
+body.dark {
+    --surface: #161616;
+    --on-surface: #a5a5a5;
+
+    --divider: #363636;
+    --gradient-1: linear-gradient(90deg, #0c5f2b, #0a2531 51%, #1e6439) 100% / 200%;
+    --gradient-2: linear-gradient(90deg, rgb(110 0 96) 20%,
+                                         rgb(27 142 43) 60%,
+                                         rgb(42 70 61) 85%,
+                                         var(--surface) 100%);
+}
