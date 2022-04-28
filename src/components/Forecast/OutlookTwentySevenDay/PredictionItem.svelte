@@ -83,8 +83,7 @@
 
 <div class="prediction-details">
     <div>
-        <h3>{time}</h3>
-        <p>{date}</p>
+        <h3>{date}</h3>
     </div>
     <div class="KP">
         <Bar percentage={kp/9} value={kp} />
