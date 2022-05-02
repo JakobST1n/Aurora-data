@@ -63,11 +63,11 @@
     }
 
     .version-picker .selected {
-        background-color: #c2c2c2;
+        background-color: var(--elevation-1, #c2c2c2);
         padding: 3px 5px;
         box-sizing: border-box;
         border-radius: 10px;
-        color: black;
+        color: var(--on-elevation-1, #000000);
     }
 
     .no-data {
@@ -93,7 +93,7 @@
             <div class="version-picker">
                 <div class:selected={selected_version == OneHourForecast} on:click={() => selected_version = OneHourForecast}>hour</div>
                 <div class:selected={selected_version == ThreeDayForecast} on:click={() => selected_version = ThreeDayForecast}>3 day</div>
-                <div class:selected={selected_version == OutlookTwentySevenDay} on:click={() => selected_version = OutlookTwentySevenDay}>Long time</div>
+                <div class:selected={selected_version == OutlookTwentySevenDay} on:click={() => selected_version = OutlookTwentySevenDay}>Longterm</div>
             </div>
     	</div>
         <svelte:component this={selected_version} />

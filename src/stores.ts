@@ -1,4 +1,5 @@
 import { writable, readable, get } from 'svelte/store';
+import { parseDateAsUTC } from './lib/DateUtils';
 
 // Choose dark or light mode.
 export const theme = writable('light');
@@ -35,6 +36,19 @@ export const space_weather      = writable({...base_attributes});
 updateNavigatorLocation();
 navigator_location.subscribe(updateEarthWeather);
 updateSpaceWeather();
+
+// Save data
+const saveToLocalstorage = (name, value) => {
+    if (typeof window === "undefined") { return; }
+    localStorage.setItem(name, JSON.stringify(value));
+}
+const getFromLocalstorage = (name) => {
+    if (typeof window === "undefined") { return; }
+    return JSON.parse(localStorage.getItem(name));
+};
+navigator_location.subscribe(v => saveToLocalstorage("navigator_location", v));
+earth_weather.subscribe(v => saveToLocalstorage("earth_weather", v));
+space_weather.subscribe(v => saveToLocalstorage("space_weather", v));
 
 /**
  * Will update the store "navigator_location" with the users geolocation if 
@@ -110,7 +124,7 @@ async function updateEarthWeather(location=null) {
         current_weather.clouds = yr_data["properties"]["timeseries"][0]["data"]["instant"]["details"]["cloud_area_fraction"];
         current_weather.temp = yr_data["properties"]["timeseries"][0]["data"]["instant"]["details"]["air_temperature"];
 
-        yr_data["properties"]["timeseries"] = yr_data["properties"]["timeseries"].map(x => ({...x, "time": new Date(x.time)}));
+        yr_data["properties"]["timeseries"] = yr_data["properties"]["timeseries"].map(x => ({...x, "time": parseDateAsUTC(x.time)}));
     } catch (e) {}
 
     earth_weather.update(v => ({
@@ -158,14 +172,14 @@ async function getSpaceWeather() {
     let tmp;
     let res = await fetch("https://services.swpc.noaa.gov/products/summary/solar-wind-mag-field.json");
     ret.usnoaa_data_raw.solar_wind_mag_field = await res.json();
-    ret.usnoaa_data_raw.solar_wind_mag_field.TimeStamp = new Date(ret.usnoaa_data_raw.solar_wind_mag_field.TimeStamp + " UTC");
+    ret.usnoaa_data_raw.solar_wind_mag_field.TimeStamp = parseDateAsUTC(ret.usnoaa_data_raw.solar_wind_mag_field.TimeStamp);
     ret.now.bz = ret.usnoaa_data_raw.solar_wind_mag_field["Bz"];
     ret.now.bt = ret.usnoaa_data_raw.solar_wind_mag_field["Bt"];
 
     res = await fetch("https://services.swpc.noaa.gov/json/geospace/geospace_pred_est_kp_1_hour.json");
     tmp = await res.json();
     tmp = tmp.map(x => ({
-        ...x, "model_prediction_time": new Date(x.model_prediction_time)
+        ...x, "model_prediction_time": parseDateAsUTC(x.model_prediction_time)
     }));
     ret.usnoaa_data_raw.geospace_pred_est_kp_1_hour = tmp
 
@@ -174,7 +188,7 @@ async function getSpaceWeather() {
     tmp = [...tmp.matchAll(
         /^(?<time>\d{4}\s.{3}\s\d{2})\s+(?<flux107>\d+)\s+(?<aindex>\d+)\s+(?<kindex>\d+)$/gm
     )];
-    tmp = tmp.map(x => ({...x.groups, "time": new Date(x.groups.time + " UTC")}));
+    tmp = tmp.map(x => ({...x.groups, "time": parseDateAsUTC(x.groups.time)}));
     ret.usnoaa_data_raw.outlook_27_day = tmp;
 
     res = await fetch("https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json")
@@ -194,7 +208,7 @@ async function getSpaceWeather() {
             minkp = pred[1];
         }
         
-        let predDate = new Date(pred[0] + " UTC");
+        let predDate = parseDateAsUTC(pred[0]);
 
         if (Math.abs(predDate.getTime() - cDate.getTime()) < Math.abs(closestDate.getTime() - cDate.getTime())) {
             closestDate = predDate;

@@ -95,7 +95,11 @@
         <div class="weatherCurrent-data-location">
             {#if !$navigator_location.updating && $navigator_location.available && !$earth_weather.updating && !$space_weather.updating}
                 <i class="symbol fas fa-map-marker-alt"></i>
-                <h1>{$navigator_location.city}</h1>
+                {#if $navigator_location.city !== undefined}
+                    <h1>{$navigator_location.city}</h1>
+                {:else}
+                    <h1>long: {$navigator_location.longitude}<br />lat: {$navigator_location.latitude}</h1>
+                {/if}
             {/if}
         </div>
 
