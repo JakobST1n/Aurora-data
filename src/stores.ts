@@ -27,23 +27,43 @@ theme.subscribe(value => {
  * The methots here does exit early if the code is running server-side and not
  * in the browser. This is to attempt to fix.
  **/
-const base_attributes = {"updated": false, "updating": true}
-export const navigator_location = writable({...base_attributes, "available": false, "longitude": null, "latitude": null, "city": null});
-export const earth_weather      = writable({...base_attributes, "available": false});
-export const space_weather      = writable({...base_attributes});
+export const data_max_age = 60 * 5 * 1000; // 5 min
+const base_attributes = {"updated": new Date(0,0,0), "updating": true};
+
+let savedNavigatorLocation = getFromLocalstorage("navigator_location");
+let savedEarthWeather = getFromLocalstorage("earth_weather");
+let savedSpaceWeather = getFromLocalstorage("space_weather");
+export const navigator_location = writable(
+    (savedNavigatorLocation !== undefined) ?
+    deserializeNavigatorLocation(savedNavigatorLocation) :
+    {...base_attributes, "available": false, "longitude": null, "latitude": null, "city": null}
+);
+export const earth_weather = writable(
+    (savedEarthWeather !== undefined) ?
+    deserializeEarthWeather(savedEarthWeather) :
+    {...base_attributes, "available": false}
+);
+export const space_weather = writable(
+    (savedSpaceWeather !== undefined) ?
+    deserializeSpaceWeather(savedSpaceWeather) :
+    {...base_attributes}
+);
 
 // Kickstart store updates
 updateNavigatorLocation();
 navigator_location.subscribe(updateEarthWeather);
 updateSpaceWeather();
 
+setInterval(updateNavigatorLocation, data_max_age / 2);
+setInterval(updateSpaceWeather, data_max_age / 2);
+
 // Save data
-const saveToLocalstorage = (name, value) => {
+function saveToLocalstorage(name, value) {
     if (typeof window === "undefined") { return; }
     localStorage.setItem(name, JSON.stringify(value));
 }
-const getFromLocalstorage = (name) => {
-    if (typeof window === "undefined") { return; }
+function getFromLocalstorage(name) {
+    if (typeof window === "undefined") { return undefined; }
     return JSON.parse(localStorage.getItem(name));
 };
 navigator_location.subscribe(v => saveToLocalstorage("navigator_location", v));
@@ -56,6 +76,8 @@ space_weather.subscribe(v => saveToLocalstorage("space_weather", v));
  */
 async function updateNavigatorLocation() {
     if(typeof window === "undefined") { return; }
+    if (Date.now() - get(navigator_location).updated < data_max_age) { return; }
+
     setUpdated(navigator_location, true);
 
     let coords;
@@ -114,6 +136,9 @@ async function updateEarthWeather(location=null) {
         setUpdated(earth_weather, false);
         return;
     }
+    
+    if (Date.now() - get(earth_weather).updated < data_max_age) { return; }
+
     setUpdated(earth_weather, true);
 
     let res = await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${location.latitude}&lon=${location.longitude}`);
@@ -142,6 +167,8 @@ async function updateEarthWeather(location=null) {
  */
 async function updateSpaceWeather() {
     if(typeof window === "undefined") { return; }
+    if (Date.now() - get(space_weather).updated < data_max_age) { return; }
+
     setUpdated(space_weather, true);
     let spaceWeather = await getSpaceWeather();
     space_weather.update(v => ({...v, ...spaceWeather}));
@@ -171,8 +198,9 @@ async function getSpaceWeather() {
 
     let tmp;
     let res = await fetch("https://services.swpc.noaa.gov/products/summary/solar-wind-mag-field.json");
-    ret.usnoaa_data_raw.solar_wind_mag_field = await res.json();
-    ret.usnoaa_data_raw.solar_wind_mag_field.TimeStamp = parseDateAsUTC(ret.usnoaa_data_raw.solar_wind_mag_field.TimeStamp);
+    tmp = await res.json();
+    tmp.TimeStamp = parseDateAsUTC(tmp.TimeStamp);
+    ret.usnoaa_data_raw.solar_wind_mag_field = tmp;
     ret.now.bz = ret.usnoaa_data_raw.solar_wind_mag_field["Bz"];
     ret.now.bt = ret.usnoaa_data_raw.solar_wind_mag_field["Bt"];
 
@@ -192,8 +220,9 @@ async function getSpaceWeather() {
     ret.usnoaa_data_raw.outlook_27_day = tmp;
 
     res = await fetch("https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json")
-    ret.usnoaa_data_raw.noaa_planetary_k_index_forecast = await res.json();
-    ret.usnoaa_data_raw.noaa_planetary_k_index_forecast.shift();
+    tmp = await res.json();
+    tmp.shift();
+    ret.usnoaa_data_raw.noaa_planetary_k_index_forecast = tmp;
 
     let cDate = new Date();
     let closestDate = new Date(0,0,0);
@@ -244,3 +273,51 @@ function setUpdated(s, updating=false) {
     }));
 }
 
+/**
+ * Function that deserializes the navigator_location after it has been 
+ * serialized with JSON.stringify
+ * @param  {object} savedNavigatorLocation The serialized Object.
+ * @return {object}                        The deserialized Object.
+ */
+function deserializeNavigatorLocation(savedNavigatorLocation) {
+    savedNavigatorLocation.updated = new Date(savedNavigatorLocation.updated);
+    return savedNavigatorLocation;
+}
+
+/**
+ * Function that deserializes the earth_weather after it has been 
+ * serialized with JSON.stringify
+ * @param  {object} savedNavigatorLocation The serialized Object.
+ * @return {object}                        The deserialized Object.
+ */
+function deserializeEarthWeather(savedEarthWeather) {
+    let v = savedEarthWeather;
+    v.updated = new Date(v.updated);
+    v.yr_data_raw.properties.meta.updated_at = new Date(v.yr_data_raw.properties.meta.updated_at);
+    v.yr_data_raw.properties.timeseries = v.yr_data_raw.properties.timeseries.map(x => ({
+        ...x, "time": new Date(x.time)
+    }));
+    return v;
+}
+
+/**
+ * Function that deserializes the space_weather after it has been 
+ * serialized with JSON.stringify
+ * @param  {object} SpaceWeather The serialized Object.
+ * @return {object}              The deserialized Object.
+ */
+function deserializeSpaceWeather(savedSpaceWeather) {
+    let v = savedSpaceWeather;
+    v.updated = new Date(v.updated);
+    v.usnoaa_data_raw.geospace_pred_est_kp_1_hour = v.usnoaa_data_raw.geospace_pred_est_kp_1_hour.map(x => ({
+        ...x, "model_prediction_time": new Date(x.model_prediction_time)
+    }));
+    v.usnoaa_data_raw.noaa_planetary_k_index_forecast = v.usnoaa_data_raw.noaa_planetary_k_index_forecast.map(x => ({
+        ...x, "time": new Date(x.time)
+    }));
+    v.usnoaa_data_raw.outlook_27_day = v.usnoaa_data_raw.outlook_27_day.map(x => ({
+        ...x, "time": new Date(x.time)
+    }));
+    v.usnoaa_data_raw.solar_wind_mag_field.TimeStamp = new Date(v.usnoaa_data_raw.solar_wind_mag_field.TimeStamp);
+    return v;
+}

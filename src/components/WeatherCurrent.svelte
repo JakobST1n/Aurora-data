@@ -2,10 +2,29 @@
     import SpinnerRoller from './Spinner/SpinnerRoller.svelte';
 
     import { onMount } from 'svelte';
-    import { navigator_location, earth_weather, space_weather } from '../stores';
+    import { get } from 'svelte/store';
+    import { data_max_age, navigator_location, earth_weather, space_weather } from '../stores';
     const monthNames = ["January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"
     ];
+
+    let oldestUpdateTime = new Date(0,0,0);
+    let timeagoLastUpdate = 0;
+    function updateOldestUpdateTime() {
+        let earthWeatherUpdate = get(earth_weather).updated;
+        let spaceWeatherUpdate = get(space_weather).updated;
+
+        let now = new Date();
+        if (now - spaceWeatherUpdate > now - earthWeatherUpdate) {
+            oldestUpdateTime = spaceWeatherUpdate;
+            timeagoLastUpdate = now - spaceWeatherUpdate;
+        } else {
+            oldestUpdateTime = earthWeatherUpdate;
+            timeagoLastUpdate = now - earthWeatherUpdate;
+        }
+    }
+
+    setInterval(updateOldestUpdateTime, 500);
 </script>
 
 <style>
@@ -108,7 +127,10 @@
             {#if Math.abs($earth_weather.updated - $space_weather.updated) > 60*10*1000}
                 <p>There is more than 10 minutes difference between data updates</p>
             {:else}
-                <p>{$earth_weather.updated.toLocaleString("no-NO", {dateStyle: "medium", timeStyle: "short"})}</p>
+                <p>{oldestUpdateTime.toLocaleString("no-NO", {dateStyle: "medium", timeStyle: "short"})}</p>
+            {/if}
+            {#if timeagoLastUpdate >= data_max_age}
+                <span style="color:red;"><i class="symbol fas fa-exclamation-circle"></i> Data is {Math.round(timeagoLastUpdate / 60 / 1000)} minutes old!</span>
             {/if}
         {/if}
         </div>
