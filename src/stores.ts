@@ -34,17 +34,17 @@ let savedNavigatorLocation = getFromLocalstorage("navigator_location");
 let savedEarthWeather = getFromLocalstorage("earth_weather");
 let savedSpaceWeather = getFromLocalstorage("space_weather");
 export const navigator_location = writable(
-    (savedNavigatorLocation !== undefined) ?
+    isInLocalStorage("navigator_location") ?
     deserializeNavigatorLocation(savedNavigatorLocation) :
     {...base_attributes, "available": false, "longitude": null, "latitude": null, "city": null}
 );
 export const earth_weather = writable(
-    (savedEarthWeather !== undefined) ?
+    isInLocalStorage("earth_weather") ?
     deserializeEarthWeather(savedEarthWeather) :
     {...base_attributes, "available": false}
 );
 export const space_weather = writable(
-    (savedSpaceWeather !== undefined) ?
+    isInLocalStorage("space_weather") ?
     deserializeSpaceWeather(savedSpaceWeather) :
     {...base_attributes}
 );
@@ -66,6 +66,10 @@ function getFromLocalstorage(name) {
     if (typeof window === "undefined") { return undefined; }
     return JSON.parse(localStorage.getItem(name));
 };
+function isInLocalStorage(name) {
+    if (typeof window === "undefined") { return false; }
+    return localStorage.hasOwnProperty(name);
+};
 navigator_location.subscribe(v => saveToLocalstorage("navigator_location", v));
 earth_weather.subscribe(v => saveToLocalstorage("earth_weather", v));
 space_weather.subscribe(v => saveToLocalstorage("space_weather", v));
@@ -76,7 +80,6 @@ space_weather.subscribe(v => saveToLocalstorage("space_weather", v));
  */
 async function updateNavigatorLocation() {
     if(typeof window === "undefined") { return; }
-    if (Date.now() - get(navigator_location).updated < data_max_age) { return; }
 
     setUpdated(navigator_location, true);
 
@@ -84,14 +87,25 @@ async function updateNavigatorLocation() {
     try {
         coords = await getBrowserGeolocation();
     } catch (e) {
+        if (get(navigator_location).available == false) { return; }
         console.log(e);
         navigator_location.update(v => ({...v, "available": false, "city": null, "longitude": null, "latitude": null}));
         setUpdated(navigator_location, false);
         return;
     }
 
-    let res = await fetch(`https://geocode.xyz/${coords.latitude},${coords.longitude}?geoit=json`);
-    let locDat = await res.json();
+    if (get(navigator_location).available && (Date.now() - get(navigator_location).updated < data_max_age)) { 
+        setUpdated(navigator_location, false, false);
+        return; 
+    }
+
+    let locDat = {"city": undefined};
+    try {
+        let res = await fetch(`https://geocode.xyz/${coords.latitude},${coords.longitude}?geoit=json`);
+        locDat = await res.json();
+    } catch (e) {
+        console.log(e);
+    }
     navigator_location.update(v => ({...v, "available": true, "city": locDat["city"], ...coords}));
 
     setUpdated(navigator_location, false);
@@ -137,7 +151,7 @@ async function updateEarthWeather(location=null) {
         return;
     }
     
-    if (Date.now() - get(earth_weather).updated < data_max_age) { return; }
+    if (get(earth_weather).available && (Date.now() - get(earth_weather).updated < data_max_age)) { return; }
 
     setUpdated(earth_weather, true);
 
@@ -150,7 +164,10 @@ async function updateEarthWeather(location=null) {
         current_weather.temp = yr_data["properties"]["timeseries"][0]["data"]["instant"]["details"]["air_temperature"];
 
         yr_data["properties"]["timeseries"] = yr_data["properties"]["timeseries"].map(x => ({...x, "time": parseDateAsUTC(x.time)}));
-    } catch (e) {}
+    } catch (e) {
+        setUpdated(earth_weather, false, false);
+        return;
+    }
 
     earth_weather.update(v => ({
         ...v,
@@ -170,7 +187,13 @@ async function updateSpaceWeather() {
     if (Date.now() - get(space_weather).updated < data_max_age) { return; }
 
     setUpdated(space_weather, true);
-    let spaceWeather = await getSpaceWeather();
+    let spaceWeather;
+    try {
+        spaceWeather = await getSpaceWeather();
+    } catch (e) {
+        setUpdated(space_weather, false, false);
+        return;
+    }
     space_weather.update(v => ({...v, ...spaceWeather}));
     setUpdated(space_weather, false);
 }
@@ -264,8 +287,11 @@ async function getSpaceWeather() {
  * @param {boolean} updating Wether the store is currently in the process of
  *                           being updated.
  */
-function setUpdated(s, updating=false) {
-    let updated = updating ? {} : {"updated": (new Date())};
+function setUpdated(s, updating=false, updateTimestamp=true) {
+    let updated = {};
+    if (updateTimestamp && !updating) {
+        updated = {"updated": (new Date())};
+    }
     s.update(v => ({
         ...v,
         ...updated,
