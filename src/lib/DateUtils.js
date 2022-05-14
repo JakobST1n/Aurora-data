@@ -1,13 +1,33 @@
 /* LUT for date-number from month name. */
-const MonthNumber = {
-    "Jan": 1, "Feb": 2, "March": 3, "April": 4, "May": 5, "Jun": 6, "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12
+const SHORT_MONTH = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+
+/**
+ * Gets a month number from the name
+ * @param  {string} The month name to find the number of.
+ * @return {number} The number of the monthname.
+ */
+function getMonthNumber(monthName) {
+    if (typeof(monthName) !== "string") {
+        throw new Error(`Cannot get month number of ${typeof(monthName)}...`);
+    }
+    if (monthName.length < 3) {
+        throw new Error(`Cannot get month number string "${monthName}" of length ${monthName.length}...`);
+    }
+
+    monthName = monthName.substring(0,3).toLowerCase();
+    let monthNumber = SHORT_MONTH.indexOf(monthName);
+
+    if (monthNumber === -1) {
+        throw new Error(`Could not find the month ${monthName}.`);
+    }
+    return monthNumber;
 }
 
 /**
  * Padds a string (or number) with leading zeroes.
- * @param  {string}     number The string to be padded.
- * @param  {number} [2] n      The minimum width of the returned string.
- * @return {string}            Zero-padded string.
+ * @param  {string|number}            number The string to be padded.
+ * @param  {number}        [2] n      The minimum width of the returned string.
+ * @return {string}                   Zero-padded string.
  */
 function zpad(number, n=2) {
     let ret = number.toString();
@@ -36,7 +56,7 @@ function toISO861UTC(dateStr) {
     if (/^\d{4}\s[a-z,A-Z]+\s\d{2}$/.test(dateStr)) {
         //console.log(`yyyy MMM dd <- ${dateStr}`);
         let parts = dateStr.split(" ");
-        dateStr = (`${parts[0]}-${zpad(MonthNumber[parts[1]])}-${parts[2]}T00:00:00Z`);
+        dateStr = (`${parts[0]}-${zpad(getMonthNumber(parts[1]))}-${parts[2]}T00:00:00Z`);
         return dateStr;
     }
 
