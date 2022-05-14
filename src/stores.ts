@@ -165,6 +165,7 @@ async function updateEarthWeather(location=null) {
 
         yr_data["properties"]["timeseries"] = yr_data["properties"]["timeseries"].map(x => ({...x, "time": parseDateAsUTC(x.time)}));
     } catch (e) {
+        console.error(e);
         setUpdated(earth_weather, false, false);
         return;
     }
@@ -191,6 +192,7 @@ async function updateSpaceWeather() {
     try {
         spaceWeather = await getSpaceWeather();
     } catch (e) {
+        console.error(e);
         setUpdated(space_weather, false, false);
         return;
     }
