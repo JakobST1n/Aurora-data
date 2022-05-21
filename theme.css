@@ -6,6 +6,9 @@ body {
     --elevation-1: #c2c2c2;
     --on-elevation-1: #000000;
 
+    --error: #d54444;
+    --on-error: #000000;
+
     --divider: #e2e8f0;
     --gradient-1: linear-gradient(90deg, #84fab0, #8fd3f4 51%, #84fab0) 100% / 200%;
     --gradient-2: linear-gradient(90deg, rgba(255, 42,228,1) 0%,
